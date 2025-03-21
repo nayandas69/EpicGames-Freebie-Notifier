@@ -8,6 +8,9 @@ on:
       - main  # Runs on push to main branch
   workflow_dispatch:  # Allows manual trigger
 
+permissions:
+  contents: write  # Allow pushing changes to the repo
+
 jobs:
   run-script:
     runs-on: ubuntu-latest
@@ -29,12 +32,10 @@ jobs:
         run: python main.py
 
       - name: Commit & Push Updated posted.json
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git pull origin main || true  # Prevent errors if there are no new changes
           git add posted.json
           git commit -m "Updated posted.json (free-games tracking)" || exit 0
-          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git" main
+          git push origin main
