@@ -95,5 +95,4 @@ No! The script **stores previously notified games** in `posted.json` and avoids 
 ## 📜 License  
 This project is **open-source** and available under the **MIT License**.  
 
-✅ **Enjoy free games effortlessly! 🎮**
-
+> Enjoy free games effortlessly!
