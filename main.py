@@ -7,7 +7,9 @@ import os
 DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK")
 POSTED_FILE = "epics.json"
 
-EPIC_GAMES_API = "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions"
+EPIC_GAMES_API = (
+    "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions"
+)
 
 
 def get_free_games():
@@ -29,6 +31,8 @@ def get_free_games():
             original_price = game["price"]["totalPrice"]["fmtPrice"]["originalPrice"]
             end_timestamp = calculate_expiration_timestamp(game)
 
+            remaining_days = calculate_remaining_days(end_timestamp)
+
             free_games.append(
                 {
                     "title": title,
@@ -36,6 +40,7 @@ def get_free_games():
                     "image": image,
                     "original_price": original_price,
                     "end_timestamp": end_timestamp,  # Store timestamp
+                    "remaining_days": remaining_days,  # Store days left
                 }
             )
 
@@ -45,11 +50,24 @@ def get_free_games():
 def calculate_expiration_timestamp(game):
     """Calculates expiration timestamp for Discord countdown."""
     try:
-        end_date = game["promotions"]["promotionalOffers"][0]["promotionalOffers"][0]["endDate"]
-        end_datetime = datetime.datetime.fromisoformat(end_date[:-1])  # Convert to datetime object
+        end_date = game["promotions"]["promotionalOffers"][0]["promotionalOffers"][0][
+            "endDate"
+        ]
+        end_datetime = datetime.datetime.fromisoformat(
+            end_date[:-1]
+        )  # Convert to datetime object
         return int(end_datetime.timestamp())  # Convert to Unix timestamp
     except:
         return None  # If no valid expiration date, return None
+
+
+def calculate_remaining_days(end_timestamp):
+    """Calculates the remaining days until expiration."""
+    if not end_timestamp:
+        return None
+    now_timestamp = int(datetime.datetime.utcnow().timestamp())
+    remaining_seconds = end_timestamp - now_timestamp
+    return max(0, remaining_seconds // 86400)  # Convert seconds to days
 
 
 def load_posted_games():
@@ -78,11 +96,11 @@ def send_to_discord(game, status):
             {
                 "title": f"{game['title']} ({status})",
                 "url": game["url"],
-                "description": f"🔥 **FREE for {countdown}!**\n\n💰 Original Price: ~~{game['original_price']}~~ → **FREE**",
+                "description": f"🔥 **FREE for {game['remaining_days']} days ({countdown})!**\n\n💰 Original Price: ~~{game['original_price']}~~ → **FREE**",
                 "color": 16776960,  # Yellow color
                 "image": {"url": game["image"]},
                 "footer": {"text": "Epic Games Freebie Notifier"},
-                "timestamp": datetime.datetime.utcnow().isoformat()
+                "timestamp": datetime.datetime.utcnow().isoformat(),
             }
         ]
     }
@@ -102,21 +120,27 @@ def main():
     for game in free_games:
         title = game["title"]
         end_timestamp = game["end_timestamp"]
+        remaining_days = game["remaining_days"]
 
         # Check if the game is expired
-        if end_timestamp and end_timestamp < int(datetime.datetime.utcnow().timestamp()):
-            posted_games[title] = {"status": "Expired"}
+        if remaining_days == 0:
+            if title in posted_games:
+                print(f"❌ {title} is no longer free. Removing from tracking.")
+                del posted_games[title]  # Remove expired games
             continue  # Skip expired games
 
         # Check for new games
         if title not in posted_games:
             send_to_discord(game, "New")
-            posted_games[title] = {"end_timestamp": end_timestamp}
+            posted_games[title] = {
+                "end_timestamp": end_timestamp,
+                "remaining_days": remaining_days,
+            }
 
-        # Notify if expiration date has changed (any change)
-        elif posted_games[title]["end_timestamp"] != end_timestamp:
+        # Notify if expiration date has changed (e.g., from 7 days to 6)
+        elif posted_games[title]["remaining_days"] != remaining_days:
             send_to_discord(game, "Updated Expiration")
-            posted_games[title]["end_timestamp"] = end_timestamp  # Update expiration
+            posted_games[title]["remaining_days"] = remaining_days  # Update expiration
 
     save_posted_games(posted_games)
 
