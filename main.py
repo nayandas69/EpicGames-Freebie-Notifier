@@ -96,7 +96,11 @@ def send_to_discord(game, status):
             {
                 "title": f"{game['title']} ({status})",
                 "url": game["url"],
-                "description": f"🔥 **FREE for {game['remaining_days']} days ({countdown})!**\n\n💰 Original Price: ~~{game['original_price']}~~ → **FREE**",
+                "description": (
+                    f"🔥 **FREE for {game['remaining_days']} days ({countdown})!**\n\n💰 Original Price: ~~{game['original_price']}~~ → **FREE**"
+                    if game["remaining_days"] is not None
+                    else "🔥 **Limited-Time Free Game!**"
+                ),
                 "color": 16776960,  # Yellow color
                 "image": {"url": game["image"]},
                 "footer": {"text": "Epic Games Freebie Notifier"},
@@ -138,7 +142,7 @@ def main():
             }
 
         # Notify if expiration date has changed (e.g., from 7 days to 6)
-        elif posted_games[title]["remaining_days"] != remaining_days:
+        elif posted_games[title].get("remaining_days") != remaining_days:
             send_to_discord(game, "Updated Expiration")
             posted_games[title]["remaining_days"] = remaining_days  # Update expiration
 
