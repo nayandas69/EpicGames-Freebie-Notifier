@@ -26,11 +26,11 @@ EpicGames-Freebie-Notifier is an **automated tool** that fetches and notifies ab
 
 ✅ **Rich Discord Embeds**  
 - Includes:  
-  - 🎮 Game Title & Link  
+  - 🎮 Game Title & Status(New or Expiration!)  
   - 💰 Original Price & Discount  
   - ⏳ Countdown Timer  
   - 🖼️ Cover Image  
-  - 🎯 "Claim Now" Button  
+  - 🎯 "Claim Now" Button With Link
 
 ✅ **Fully Automated with GitHub Actions**  
 - **Runs every day at 12:00 AM UTC** to fetch new games.  
