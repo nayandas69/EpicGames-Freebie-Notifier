@@ -1,103 +1,121 @@
-# EpicGames-Freebie-Notifier 🎮  
-EpicGames-Freebie-Notifier is an automated tool that fetches and notifies about free games from the Epic Games Store using Discord Webhooks. It provides real-time countdowns, ensuring you never miss a deal. The system prevents duplicate notifications by tracking previously posted games and only sending updates when necessary. Fully automated with GitHub Actions, it runs daily to keep your data fresh and accurate.
+# EpicGames-Freebie-Notifier 🎮 
+
+EpicGames-Freebie-Notifier is an **automated tool** that fetches and notifies about **free games** from the **Epic Games Store** via **Discord Webhooks**. It provides **real-time countdowns**, ensuring you never miss a deal. The system prevents duplicate notifications by tracking previously posted games and **only sends updates when necessary**. Fully automated with **GitHub Actions**, it runs **daily** to keep your data fresh and accurate.  
 
 
-## Features 📌
-✅ **Live Digital Countdown**  
-- Displays a real-time countdown (`⏳ Free for 2 days, 3 hours (⏰ 14:45:00)`) in Discord messages.  
+### Updates & Fixes:  
+- **Better Rich Embeds:** Now includes a **"Claim Now"** button for quick access.  
+- **Optimized Countdown Timer:** Shows a **live countdown** (`⏳ Free for 2 days (⏰ 14:45:00)`).  
+- **More Accurate Expiration Tracking:** Fixed minor issues with end timestamps.  
+- **Error Handling Improved:** Prevents failures when Epic Games' API is down.  
 
-✅ **Daily Free Game Updates**  
-- Automatically fetches **free games from Epic Games Store** and notifies on Discord.  
+
+## Features 📌  
+
+✅ **Live Countdown Timer**  
+- Shows a real-time countdown (`⏳ Free for 3 days, 2 hours`).  
+
+✅ **Automatic Free Game Notifications**  
+- Fetches **free games from Epic Games Store** and notifies on Discord.  
 - Uses the [Epic Games API](https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions).  
 
-✅ **No Duplicate Notifications**  
-- Sends a notification **only if**:
-  - A new game is available.  
-  - The expiration time changes.  
+✅ **No Duplicate Spam**  
+- Sends notifications **only when**:  
+  - A **new** free game appears.  
+  - The **expiration date changes**.  
 
-✅ **Rich Discord Messages**  
-- Well-formatted embeds with:
-  - Game title & link  
-  - Original price & discount  
-  - Countdown timer  
-  - Game cover image  
+✅ **Rich Discord Embeds**  
+- Includes:  
+  - 🎮 Game Title & Link  
+  - 💰 Original Price & Discount  
+  - ⏳ Countdown Timer  
+  - 🖼️ Cover Image  
+  - 🎯 "Claim Now" Button  
 
-✅ **GitHub Actions Integration**  
-- Runs **daily at 12:00 AM UTC** to fetch new data.  
-- Keeps data updated without manual intervention.  
+✅ **Fully Automated with GitHub Actions**  
+- **Runs every day at 12:00 AM UTC** to fetch new games.  
 
----
 
-## Installation & Setup
-### Fork & Clone the Repository
+## How to Set Up? 
+
+### 1. Fork & Clone the Repository  
 ```bash
 git clone https://github.com/nayandas69/EpicGames-Freebie-Notifier.git
 cd EpicGames-Freebie-Notifier
 ```
 
-### Set Up Discord Webhook in GitHub
+### 2. Add Discord Webhook to GitHub  
 1. **Create a Webhook in Discord:**  
    - Go to **Server Settings** → **Integrations** → **Create Webhook**.  
    - Copy the **Webhook URL**.  
 
 2. **Add Webhook to GitHub Secrets:**  
-   - Go to your **GitHub repository** → **Settings** → **Secrets and variables** → **Actions**.  
-   - Click **New repository secret** → Name it **`DISCORD_WEBHOOK`**.  
-   - Paste the **Webhook URL** → Click **Add secret**.
+   - Go to your **GitHub repository** → **Settings** → **Secrets and Variables** → **Actions**.  
+   - Click **New Repository Secret** → Name it **`DISCORD_WEBHOOK`**.  
+   - Paste the **Webhook URL** → Click **Add Secret**.  
 
-### Run Locally
-To manually check free games, run:
+### 3. Run It Locally (Optional)  
+To manually check free games, run:  
 ```bash
 python main.py
 ```
 
----
 
-## How It Works
+## How It Works? 
+
 1. **Fetch Free Games:**  
    - Uses Epic Games API to check free games.  
    - Extracts title, image, price, and expiration date.  
-   
+
 2. **Check Expiration:**  
    - Converts expiration time to a **live countdown** (`<t:TIMESTAMP:R>`).  
-   
+
 3. **Send to Discord:**  
-   - If a new game is found, it **sends a notification**.  
-   - If expiration time changes significantly, it **updates the message**.  
+   - If a **new game** is found, it **sends a notification**.  
+   - If expiration time changes, it **updates the message**.  
 
 4. **Prevents Duplicate Alerts:**  
    - Uses `epics.json` to **track previously posted games**.  
-   - Only **sends updates if something changes**.  
 
 
-## API Used
-### Epic Games API 🎮:
-- **Endpoint:** `https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions`
-- **Purpose:** Fetches free games and their expiration times.  
-- **Data Extracted:**
+## Don't Want to Fork & Set Up?  
+
+### Just Join My Discord & Get Free Game Notifications Automatically!  
+Click the button below to **join my Discord server**, and you'll receive **free Epic Games notifications instantly!**  
+
+> **[Join Now](https://discord.gg/skHyssu)**  
+
+Get notified without **any setup or coding**!  
+
+
+## Epic Games API  
+
+This project **fetches free games** from the **Epic Games API**:  
+
+- **API Endpoint:**  
+  - [`https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions`](https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions)  
+
+- **Data Extracted:**  
   - `title`: Game name  
   - `productSlug`: Game URL  
   - `price`: Original & discount price  
   - `endDate`: Offer expiration time  
 
-
-## GitHub Actions Automation
-### **Daily Workflow (Runs at 12:00 AM UTC)** ⏳
-- **Fetches new free games** from Epic Games Store.  
-- **Updates `epics.json`** if new games or changes are found.  
-- **Sends notifications to Discord** for new or updated games.
+> Official API Docs📄: [Epic Games API Documentation](https://dev.epicgames.com/docs)  
 
 
-## 📝 Example Discord Message
-<img src="img/Demo.png" alt="Example Discord Message" width="451" height="389">
- 
+## Example Discord Message  
+
+<img src="img/Demo1.png" alt="Example Discord Message" width="453" height="435"> 
 
 
-## Contributing
-Want to improve this project? Feel free to submit a pull request!  
+## Contributing  
+
+Want to improve this project? Feel free to **submit a pull request**!  
 
 
-## License 
-This project is open-source and licensed under the `MIT`.  
+## License
 
-For more details, read the [LICENSE](LICENSE) file.
+This project is open-source and licensed under **MIT**.  
+
+For more details, read the [LICENSE](LICENSE) file.  
