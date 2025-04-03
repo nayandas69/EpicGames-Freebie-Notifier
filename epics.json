@@ -18,5 +18,9 @@
     "Idle Champions of the Forgotten Realms": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "Cat Quest II": {
+        "end_timestamp": 1744297200,
+        "remaining_days": 6
     }
 }
