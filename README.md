@@ -106,7 +106,7 @@ This project **fetches free games** from the **Epic Games API**:
 
 ## Example Discord Message  
 
-<img src="img/Demo1.png" alt="Example Discord Message" width="453" height="435"> 
+<img src="img/Demo2.png" alt="Example Discord Message" width="453" height="435"> 
 
 
 ## Contributing  

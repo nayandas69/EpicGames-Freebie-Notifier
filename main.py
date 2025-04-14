@@ -141,7 +141,7 @@ def send_to_discord(game, status):
         status (str): "New" for a new free game, "Updated Expiration" for an update.
     """
     if game["end_timestamp"]:
-        countdown = f"<t:{game['end_timestamp']}:R> (⏰ <t:{game['end_timestamp']}:t>)"
+        countdown = f"⏰ <t:{game['end_timestamp']}:t>"
     else:
         countdown = "Unknown"
 
@@ -150,7 +150,7 @@ def send_to_discord(game, status):
             {
                 "title": f"{game['title']} ({status})",
                 "description": (
-                    f"🔥 **FREE for {game['remaining_days']} days!** ({countdown})\n\n"
+                    f"🔥 **FREE for {game['remaining_days']} days!** (⏰ <t:{game['end_timestamp']}:t>)\n\n"
                     f"💰 Original Price: ~~{game['original_price']}~~ → **FREE**\n\n"
                     f"👉 **[🎮 Claim Now]({game['url']})**"
                 ),
