@@ -15,20 +15,8 @@
         "end_timestamp": null,
         "remaining_days": null
     },
-    "Idle Champions of the Forgotten Realms": {
-        "end_timestamp": null,
-        "remaining_days": 1
-    },
-    "Arcadegeddon": {
-        "end_timestamp": null,
-        "remaining_days": 1
-    },
     "Firestone Online Idle RPG": {
         "end_timestamp": null,
         "remaining_days": null
-    },
-    "River City Girls": {
-        "end_timestamp": 1744902000,
-        "remaining_days": 1
     }
 }
