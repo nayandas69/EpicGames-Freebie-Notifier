@@ -17,6 +17,14 @@
     },
     "Firestone Online Idle RPG": {
         "end_timestamp": null,
+        "remaining_days": 6
+    },
+    "Botanicula": {
+        "end_timestamp": 1745506800,
+        "remaining_days": 6
+    },
+    "Albion Online Free Welcome Gift": {
+        "end_timestamp": null,
         "remaining_days": null
     }
 }
