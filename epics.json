@@ -14,5 +14,9 @@
     "Arcadgeddon": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "Super Space Club": {
+        "end_timestamp": 1746716400,
+        "remaining_days": 6
     }
 }
