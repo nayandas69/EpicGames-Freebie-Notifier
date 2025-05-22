@@ -25,13 +25,21 @@
     },
     "Sifu": {
         "end_timestamp": null,
-        "remaining_days": null
+        "remaining_days": 6
     },
     "Gigapocalypse": {
         "end_timestamp": null,
-        "remaining_days": null
+        "remaining_days": 6
     },
     "Deliver At All Costs": {
+        "end_timestamp": null,
+        "remaining_days": 6
+    },
+    "Mystery Game 6": {
+        "end_timestamp": null,
+        "remaining_days": null
+    },
+    "Mystery Game 7": {
         "end_timestamp": null,
         "remaining_days": null
     }
