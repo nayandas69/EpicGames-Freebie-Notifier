@@ -33,9 +33,21 @@
     },
     "Tiny Tina's Wonderlands": {
         "end_timestamp": null,
-        "remaining_days": null
+        "remaining_days": 6
     },
     "Limbo": {
+        "end_timestamp": null,
+        "remaining_days": 6
+    },
+    "Gigapocalypse": {
+        "end_timestamp": null,
+        "remaining_days": null
+    },
+    "Mystery Game 8": {
+        "end_timestamp": null,
+        "remaining_days": null
+    },
+    "Mystery Game 9": {
         "end_timestamp": null,
         "remaining_days": null
     }
