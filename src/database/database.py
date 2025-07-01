@@ -101,7 +101,7 @@ class Database:
                     params.append(guild_id)
 
                     await db.execute(
-                        f"UPDATE guild_settings SET {', '.join(updates)} WHERE guild_id = ?",
+                        query = f"UPDATE table SET {', '.join(fields)} WHERE id = ?"
                         params,
                     )
             else:
