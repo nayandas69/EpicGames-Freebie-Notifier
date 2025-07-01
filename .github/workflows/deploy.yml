@@ -1,0 +1,80 @@
+name: Deploy to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+        - production
+        - staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.11
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run health check
+      env:
+        DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+        DISCORD_GUILD_ID: ${{ secrets.DISCORD_GUILD_ID }}
+        NOTIFICATION_CHANNEL_ID: ${{ secrets.NOTIFICATION_CHANNEL_ID }}
+      run: |
+        python -c "
+        import asyncio
+        from src.config import Config
+        from src.services.epic_games import EpicGamesService
+        
+        async def health_check():
+            try:
+                Config.validate()
+                async with EpicGamesService() as service:
+                    games = await service.get_free_games()
+                print(f'Health check passed. Found {len(games)} free games.')
+                return True
+            except Exception as e:
+                print(f'Health check failed: {e}')
+                return False
+        
+        result = asyncio.run(health_check())
+        exit(0 if result else 1)
+        "
+    
+    - name: Create deployment package
+      run: |
+        mkdir -p deploy
+        cp -r src deploy/
+        cp main.py deploy/
+        cp requirements.txt deploy/
+        
+        # Create production .env file
+        cat > deploy/.env << EOF
+        DISCORD_TOKEN=${{ secrets.DISCORD_TOKEN }}
+        DISCORD_GUILD_ID=${{ secrets.DISCORD_GUILD_ID }}
+        NOTIFICATION_CHANNEL_ID=${{ secrets.NOTIFICATION_CHANNEL_ID }}
+        NOTIFICATION_TIME=${{ vars.NOTIFICATION_TIME || '13:00' }}
+        LOG_LEVEL=${{ vars.LOG_LEVEL || 'INFO' }}
+        EPIC_GAMES_REGION=${{ vars.EPIC_GAMES_REGION || 'US' }}
+        DATABASE_PATH=./data/bot.db
+        EOF
+    
+    - name: Deploy notification
+      run: |
+        echo "Deployment to ${{ github.event.inputs.environment }} completed successfully!"
+        echo "Bot is ready to run with: python main.py"
