@@ -1,9 +1,8 @@
 """Game model for Epic Games Store data."""
 
 from dataclasses import dataclass
-from datetime import datetime
 from typing import List, Optional
-
+from datetime import datetime, timezone
 
 @dataclass
 class GameImage:
@@ -37,7 +36,7 @@ class GamePromotion:
     @property
     def is_active(self) -> bool:
         """Check if the promotion is currently active."""
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         return self.start_date <= now <= self.end_date
 
     @property

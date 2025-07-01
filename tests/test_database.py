@@ -2,6 +2,7 @@
 
 import pytest
 import asyncio
+import pytest_asyncio
 import tempfile
 import os
 from pathlib import Path
@@ -12,7 +13,7 @@ from src.database.database import Database
 class TestDatabase:
     """Test cases for database functionality."""
 
-    @pytest.fixture
+    @pytest_asyncio.fixture
     async def temp_db(self):
         """Create a temporary database for testing."""
         with tempfile.NamedTemporaryFile(delete=False, suffix=".db") as tmp:
