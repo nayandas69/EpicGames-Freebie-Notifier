@@ -30,7 +30,7 @@ class Database:
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
-            """
+                """
             )
 
             await db.execute(
@@ -42,7 +42,7 @@ class Database:
                     notified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     UNIQUE(game_id, guild_id)
                 )
-            """
+                """
             )
 
             await db.execute(
@@ -53,7 +53,7 @@ class Database:
                     last_check TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     error_message TEXT
                 )
-            """
+                """
             )
 
             await db.commit()
@@ -84,7 +84,6 @@ class Database:
             exists = await cursor.fetchone()
 
             if exists:
-                # Update existing settings
                 updates = []
                 params = []
 
@@ -98,18 +97,17 @@ class Database:
 
                 if updates:
                     updates.append("updated_at = CURRENT_TIMESTAMP")
+                    # Remove CURRENT_TIMESTAMP from params (not a placeholder)
+                    query = f"UPDATE guild_settings SET {', '.join(updates)} WHERE guild_id = ?"
                     params.append(guild_id)
-
-                    await db.execute(
-                        query = f"UPDATE table SET {', '.join(fields)} WHERE id = ?"
-                        params,
-                    )
+                    await db.execute(query, params)
             else:
-                # Insert new settings
                 await db.execute(
-                    """INSERT INTO guild_settings 
-                       (guild_id, notification_channel_id, notification_time) 
-                       VALUES (?, ?, ?)""",
+                    """
+                    INSERT INTO guild_settings 
+                    (guild_id, notification_channel_id, notification_time) 
+                    VALUES (?, ?, ?)
+                    """,
                     (guild_id, channel_id, notification_time or "13:00"),
                 )
 
@@ -138,9 +136,7 @@ class Database:
         """Clean up old notification records."""
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute(
-                "DELETE FROM notified_games WHERE notified_at < datetime('now', '-{} days')".format(
-                    days
-                )
+                f"DELETE FROM notified_games WHERE notified_at < datetime('now', '-{days} days')"
             )
             await db.commit()
 
@@ -159,6 +155,10 @@ class Database:
         """Get all guild settings for notifications."""
         async with aiosqlite.connect(self.db_path) as db:
             cursor = await db.execute(
-                "SELECT guild_id, notification_channel_id, notification_time FROM guild_settings WHERE notification_channel_id IS NOT NULL"
+                """
+                SELECT guild_id, notification_channel_id, notification_time 
+                FROM guild_settings 
+                WHERE notification_channel_id IS NOT NULL
+                """
             )
             return await cursor.fetchall()
