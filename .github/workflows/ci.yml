@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main-bot-develop ]
+    branches: [ master ]
   pull_request:
-    branches: [ main-bot-develop ]
+    branches: [ master ]
 
 jobs:
   test:
