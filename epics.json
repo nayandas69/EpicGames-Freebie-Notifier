@@ -46,5 +46,13 @@
     "DEATHLOOP": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "Sky Racket": {
+        "end_timestamp": 1752764400,
+        "remaining_days": 6
+    },
+    "Figment 2: Creed Valley": {
+        "end_timestamp": 1752764400,
+        "remaining_days": 6
     }
 }
