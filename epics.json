@@ -46,9 +46,5 @@
     "DEATHLOOP": {
         "end_timestamp": null,
         "remaining_days": null
-    },
-    "Legion TD 2": {
-        "end_timestamp": 1753974000,
-        "remaining_days": 1
     }
 }
