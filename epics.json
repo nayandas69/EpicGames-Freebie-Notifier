@@ -46,5 +46,13 @@
     "DEATHLOOP": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "Pilgrims": {
+        "end_timestamp": 1754578800,
+        "remaining_days": 6
+    },
+    "Keylocker | Turn Based Cyberpunk Action": {
+        "end_timestamp": 1754578800,
+        "remaining_days": 6
     }
 }
