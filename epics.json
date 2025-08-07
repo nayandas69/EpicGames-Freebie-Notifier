@@ -46,5 +46,13 @@
     "DEATHLOOP": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "112 Operator": {
+        "end_timestamp": 1755183600,
+        "remaining_days": 6
+    },
+    "Road Redemption": {
+        "end_timestamp": 1755183600,
+        "remaining_days": 6
     }
 }
