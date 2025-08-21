@@ -46,5 +46,13 @@
     "DEATHLOOP": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "Strange Horticulture": {
+        "end_timestamp": 1756393200,
+        "remaining_days": 6
+    },
+    "Kamaeru": {
+        "end_timestamp": 1756393200,
+        "remaining_days": 6
     }
 }
