@@ -46,5 +46,13 @@
     "DEATHLOOP": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "Machinarium": {
+        "end_timestamp": 1756998000,
+        "remaining_days": 6
+    },
+    "Make Way": {
+        "end_timestamp": 1756998000,
+        "remaining_days": 6
     }
 }
