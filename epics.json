@@ -49,6 +49,14 @@
     },
     "Firestone Online Idle RPG": {
         "end_timestamp": null,
+        "remaining_days": 6
+    },
+    "Nightingale": {
+        "end_timestamp": 1760022000,
+        "remaining_days": 6
+    },
+    "Rogue Journeyman Bundle": {
+        "end_timestamp": null,
         "remaining_days": null
     }
 }
