@@ -46,5 +46,13 @@
     "DEATHLOOP": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "Amnesia: The Bunker": {
+        "end_timestamp": 1761231600,
+        "remaining_days": 6
+    },
+    "Samorost 3": {
+        "end_timestamp": 1761231600,
+        "remaining_days": 6
     }
 }
