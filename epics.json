@@ -46,5 +46,17 @@
     "DEATHLOOP": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "Scourgebringer": {
+        "end_timestamp": 1763654400,
+        "remaining_days": 6
+    },
+    "Songs of Silence": {
+        "end_timestamp": 1763654400,
+        "remaining_days": 6
+    },
+    "Zero Hour": {
+        "end_timestamp": 1763654400,
+        "remaining_days": 6
     }
 }
