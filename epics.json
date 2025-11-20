@@ -46,5 +46,13 @@
     "DEATHLOOP": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "Zoeti": {
+        "end_timestamp": 1764259200,
+        "remaining_days": 6
+    },
+    "Godzilla Voxel Wars": {
+        "end_timestamp": 1764259200,
+        "remaining_days": 6
     }
 }
