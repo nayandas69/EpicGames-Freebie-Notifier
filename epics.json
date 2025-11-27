@@ -46,5 +46,9 @@
     "DEATHLOOP": {
         "end_timestamp": null,
         "remaining_days": null
+    },
+    "Zoeti": {
+        "end_timestamp": 1764691200,
+        "remaining_days": 5
     }
 }
