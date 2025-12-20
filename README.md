@@ -8,7 +8,7 @@ This script checks the Epic Games Store every hour and sends you a Discord notif
 
 ## Quick Start
 
-**Don't want to set this up yourself?** Just join my Discord server and get notifications automatically: https://discord.gg/u9XfHZN8K9
+**Don't want to set this up yourself?** Just join my [Discord server](https://discord.gg/u9XfHZN8K9) and get notifications automatically.
 
 ### If You Want to Run It Yourself
 
@@ -96,3 +96,4 @@ MIT License - do whatever you want with it.
 ---
 
 Made by [nayandas69](https://github.com/nayandas69)
+![Profile Views](https://komarev.com/ghpvc/?username=nayandas69)
