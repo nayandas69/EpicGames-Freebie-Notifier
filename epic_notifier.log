@@ -1,1 +1,11 @@
 2025-12-20 22:34:08,019 - INFO - Starting Epic Games Freebie Notifier2025-12-20 18:21:30,132 - INFO - Starting Epic Games Freebie Notifier
+2025-12-20 18:54:52,714 - INFO - Starting Epic Games Freebie Notifier
+2025-12-20 18:54:52,715 - INFO - Current working directory: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier
+2025-12-20 18:54:52,715 - INFO - Looking for .env file at: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier/.env
+2025-12-20 18:54:52,715 - INFO - .env file exists: False
+2025-12-20 18:54:52,715 - INFO - Configuration validated successfully
+2025-12-20 18:54:52,715 - INFO - Using webhook: https://discord.com/api/webhoo...
+2025-12-20 18:54:53,290 - INFO - Found 1 free game(s)
+2025-12-20 18:54:53,291 - INFO - New free game detected: Blood West
+2025-12-20 18:54:53,596 - INFO - Successfully notified: Blood West
+2025-12-20 18:54:53,598 - INFO - Completed notification check
