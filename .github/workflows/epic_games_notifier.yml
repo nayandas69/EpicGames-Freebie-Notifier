@@ -1,0 +1,59 @@
+name: Epic Games to Discord Notifier
+
+on:
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour to check for new free games
+  push:
+    branches:
+      - main  # Runs on push to main branch
+  workflow_dispatch:  # Allows manual trigger from Actions tab
+
+permissions:
+  contents: write  # Required to commit and push changes
+
+jobs:
+  notify-free-games:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for better git operations
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'  # Built-in pip caching
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Epic Games Notifier
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        run: python main.py
+
+      - name: Configure Git
+        run: |
+          git config user.name "nayandas69"
+          git config user.email "174907517+nayandas69@users.noreply.github.com"
+
+      - name: Commit and Push Changes
+        run: |
+          # Check if there are changes to commit
+          if [[ -n $(git status --porcelain) ]]; then
+            git add epics.json epic_notifier.log
+            git commit -m "🎮 Updated Epic Games free games list - $(date +'%Y-%m-%d %H:%M UTC')" || exit 0
+            
+            # Pull latest changes and push
+            git pull --rebase origin main || true
+            git push origin main
+            
+            echo "✅ Successfully updated and pushed changes"
+          else
+            echo "ℹ️ No changes to commit"
+          fi
