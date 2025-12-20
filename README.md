@@ -39,7 +39,30 @@ This script checks the Epic Games Store every hour and sends you a Discord notif
 
 ### Using GitHub Actions (Recommended)
 
-The repo includes a GitHub Actions workflow that runs automatically every hour. Just fork the repo and add your Discord webhook URL as a repository secret named `DISCORD_WEBHOOK`. That's it.
+The repo includes a GitHub Actions workflow that runs automatically every hour. Just fork the repo and:
+
+1. **Add Discord Webhook Secret**
+   - Go to your repository Settings → Secrets and variables → Actions
+   - Click "New repository secret"
+   - Name: `DISCORD_WEBHOOK`
+   - Value: Your Discord webhook URL
+   - Click "Add secret"
+
+2. **Add Personal Access Token (PAT_TOKEN)** _(Required to commit as yourself)_
+   - Go to GitHub Settings → Developer settings → Personal access tokens → Tokens (classic)
+   - Click "Generate new token (classic)"
+   - Give it a name like "Epic Games Notifier"
+   - Select these scopes:
+     - [x] **public_repo** (under repo section)
+     - [x] **workflow**
+   - Generate and copy the token
+   - Go to your repository Settings → Secrets and variables → Actions
+   - Click "New repository secret"
+   - Name: `PAT_TOKEN`
+   - Value: Your personal access token
+   - Click "Add secret"
+
+That's it! The workflow will run automatically and commits will appear as you.
 
 ## What You Get
 
