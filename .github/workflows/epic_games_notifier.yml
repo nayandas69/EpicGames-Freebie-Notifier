@@ -19,6 +19,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.PAT_TOKEN }}
           fetch-depth: 0  # Fetch all history for better git operations
 
       - name: Set up Python
