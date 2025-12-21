@@ -2,7 +2,7 @@ name: Epic Games to Discord Notifier
 
 on:
   schedule:
-    - cron: '0 * * * *'  # Runs every hour to check for new free games
+    - cron: '5 16 * * *'  # Runs every day at 10:05 PM Bangladesh time
   workflow_dispatch:  # Allows manual trigger from Actions tab
 
 permissions:
@@ -55,4 +55,5 @@ jobs:
           else
             echo "ℹ️ No changes to commit"
           fi
+
 
