@@ -233,3 +233,13 @@
 2025-12-21 14:20:08,289 - INFO - Using webhook: https://discord.com/api/webhoo...
 2025-12-21 14:20:08,748 - INFO - Found 1 free game(s)
 2025-12-21 14:20:08,749 - INFO - Completed notification check
+2025-12-21 15:20:39,208 - INFO - Starting Epic Games Freebie Notifier
+2025-12-21 15:20:39,208 - INFO - Current working directory: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier
+2025-12-21 15:20:39,208 - INFO - Looking for .env file at: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier/.env
+2025-12-21 15:20:39,208 - INFO - .env file exists: False
+2025-12-21 15:20:39,208 - INFO - Configuration validated successfully
+2025-12-21 15:20:39,208 - INFO - Using webhook: https://discord.com/api/webhoo...
+2025-12-21 15:20:39,357 - INFO - Found 2 free game(s)
+2025-12-21 15:20:39,358 - INFO - New free game detected: Sorry We're Closed
+2025-12-21 15:20:39,601 - INFO - Successfully notified: Sorry We're Closed
+2025-12-21 15:20:39,602 - INFO - Completed notification check
