@@ -340,3 +340,14 @@
 2025-12-29 16:29:15,512 - INFO - Successfully notified: Viewfinder
 2025-12-29 16:29:15,513 - INFO - Removing expired game from tracking: SKALD Against the Black Priory
 2025-12-29 16:29:15,514 - INFO - Completed notification check
+2025-12-30 16:30:47,969 - INFO - Starting Epic Games Freebie Notifier
+2025-12-30 16:30:47,970 - INFO - Current working directory: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier
+2025-12-30 16:30:47,970 - INFO - Looking for .env file at: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier/.env
+2025-12-30 16:30:47,970 - INFO - .env file exists: False
+2025-12-30 16:30:47,970 - INFO - Configuration validated successfully
+2025-12-30 16:30:47,970 - INFO - Using webhook: https://discord.com/api/webhoo...
+2025-12-30 16:30:48,125 - INFO - Found 1 free game(s)
+2025-12-30 16:30:48,126 - INFO - New free game detected: Trine Classic Collection
+2025-12-30 16:30:48,736 - INFO - Successfully notified: Trine Classic Collection
+2025-12-30 16:30:48,737 - INFO - Removing expired game from tracking: Viewfinder
+2025-12-30 16:30:48,738 - INFO - Completed notification check
