@@ -475,3 +475,16 @@
 2026-01-14 16:34:39,346 - INFO - Using webhook: https://discord.com/api/webhoo...
 2026-01-14 16:34:39,551 - INFO - Found 1 free game(s)
 2026-01-14 16:34:39,552 - INFO - Completed notification check
+2026-01-15 16:38:39,478 - INFO - Starting Epic Games Freebie Notifier
+2026-01-15 16:38:39,478 - INFO - Current working directory: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier
+2026-01-15 16:38:39,478 - INFO - Looking for .env file at: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier/.env
+2026-01-15 16:38:39,478 - INFO - .env file exists: False
+2026-01-15 16:38:39,478 - INFO - Configuration validated successfully
+2026-01-15 16:38:39,478 - INFO - Using webhook: https://discord.com/api/webhoo...
+2026-01-15 16:38:39,905 - INFO - Found 2 free game(s)
+2026-01-15 16:38:39,907 - INFO - New free game detected: Styx: Master of Shadows
+2026-01-15 16:38:40,561 - INFO - Successfully notified: Styx: Master of Shadows
+2026-01-15 16:38:40,562 - INFO - New free game detected: Styx: Shards of Darkness - Deluxe Edition
+2026-01-15 16:38:40,886 - INFO - Successfully notified: Styx: Shards of Darkness - Deluxe Edition
+2026-01-15 16:38:40,887 - INFO - Removing expired game from tracking: Bloons TD 6
+2026-01-15 16:38:40,888 - INFO - Completed notification check
