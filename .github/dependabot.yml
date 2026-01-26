@@ -27,20 +27,20 @@ updates:
           - "version-update:semver-major"
 
   # GitHub Actions (optional but recommended)
-  - package-ecosystem: "github-actions"
-    directory: "/"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-      time: "09:00"
-      timezone: "Asia/Dhaka"
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "chore(actions)"
-    labels:
-      - "dependencies"
-      - "github-actions"
-    reviewers:
-      - "nayandas69"
-    assignees:
-      - "nayandas69"
+#  - package-ecosystem: "github-actions"
+#    directory: "/"
+#    schedule:
+#      interval: "weekly"
+#      day: "monday"
+#      time: "09:00"
+#      timezone: "Asia/Dhaka"
+#    open-pull-requests-limit: 5
+#    commit-message:
+#      prefix: "chore(actions)"
+#    labels:
+#      - "dependencies"
+#      - "github-actions"
+#    reviewers:
+#      - "nayandas69"
+#    assignees:
+#     - "nayandas69"
