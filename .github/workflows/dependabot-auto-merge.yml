@@ -17,6 +17,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Enable auto-merge if approved
         if: github.event.review.state == 'approved'
         uses: peter-evans/enable-pull-request-automerge@v3
