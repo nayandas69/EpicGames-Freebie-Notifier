@@ -11,9 +11,7 @@ permissions:
 
 jobs:
   automerge:
-    if: |
-      github.actor == 'dependabot[bot]' ||
-      github.event.pull_request.user.login == 'dependabot[bot]'
+    if: github.event.pull_request.user.login == 'dependabot[bot]'
     runs-on: ubuntu-latest
 
     steps:
@@ -28,3 +26,4 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           merge-method: squash
+          pull-request-number: ${{ github.event.pull_request.number }}
