@@ -1,0 +1,46 @@
+version: 2
+
+updates:
+  # Python dependencies (pip / requirements.txt)
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Dhaka"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "python"
+    reviewers:
+      - "nayandas69"
+    assignees:
+      - "nayandas69"
+    ignore:
+      # Ignore major version updates (review manually)
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-major"
+
+  # GitHub Actions (optional but recommended)
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Dhaka"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "chore(actions)"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    reviewers:
+      - "nayandas69"
+    assignees:
+      - "nayandas69"
