@@ -1283,3 +1283,11 @@
 2026-04-16 17:17:54,972 - INFO - Removing expired game from tracking: TOMAK: Save the Earth Regeneration
 2026-04-16 17:17:54,973 - INFO - Removing expired game from tracking: Prop Sumo
 2026-04-16 17:17:54,973 - INFO - Completed notification check
+2026-04-17 16:56:15,075 - INFO - Starting Epic Games Freebie Notifier
+2026-04-17 16:56:15,075 - INFO - Current working directory: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier
+2026-04-17 16:56:15,075 - INFO - Looking for .env file at: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier/.env
+2026-04-17 16:56:15,075 - INFO - .env file exists: False
+2026-04-17 16:56:15,075 - INFO - Configuration validated successfully
+2026-04-17 16:56:15,075 - INFO - Using webhook: https://discord.com/api/webhoo...
+2026-04-17 16:56:15,116 - INFO - Found 1 free game(s)
+2026-04-17 16:56:15,117 - INFO - Completed notification check
