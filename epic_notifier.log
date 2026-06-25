@@ -1885,3 +1885,17 @@
 2026-06-24 17:56:10,359 - INFO - Using webhook: https://discord.com/api/webhoo...
 2026-06-24 17:56:10,406 - INFO - Found 2 free game(s)
 2026-06-24 17:56:10,407 - INFO - Completed notification check
+2026-06-25 18:11:31,810 - INFO - Starting Epic Games Freebie Notifier
+2026-06-25 18:11:31,810 - INFO - Current working directory: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier
+2026-06-25 18:11:31,810 - INFO - Looking for .env file at: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier/.env
+2026-06-25 18:11:31,810 - INFO - .env file exists: False
+2026-06-25 18:11:31,810 - INFO - Configuration validated successfully
+2026-06-25 18:11:31,810 - INFO - Using webhook: https://discord.com/api/webhoo...
+2026-06-25 18:11:32,391 - INFO - Found 2 free game(s)
+2026-06-25 18:11:32,392 - INFO - New free game detected: RollerCoaster Tycoon 3 Complete Edition
+2026-06-25 18:11:33,213 - INFO - Successfully notified: RollerCoaster Tycoon 3 Complete Edition
+2026-06-25 18:11:33,214 - INFO - New free game detected: Voidwrought
+2026-06-25 18:11:33,591 - INFO - Successfully notified: Voidwrought
+2026-06-25 18:11:33,592 - INFO - Removing expired game from tracking: Citizen Sleeper
+2026-06-25 18:11:33,592 - INFO - Removing expired game from tracking: ROBOBEAT
+2026-06-25 18:11:33,592 - INFO - Completed notification check
