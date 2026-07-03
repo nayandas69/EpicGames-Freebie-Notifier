@@ -1961,3 +1961,11 @@
 2026-07-02 17:50:19,367 - INFO - Removing expired game from tracking: RollerCoaster Tycoon 3 Complete Edition
 2026-07-02 17:50:19,367 - INFO - Removing expired game from tracking: Voidwrought
 2026-07-02 17:50:19,367 - INFO - Completed notification check
+2026-07-03 17:27:26,344 - INFO - Starting Epic Games Freebie Notifier
+2026-07-03 17:27:26,344 - INFO - Current working directory: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier
+2026-07-03 17:27:26,344 - INFO - Looking for .env file at: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier/.env
+2026-07-03 17:27:26,344 - INFO - .env file exists: False
+2026-07-03 17:27:26,344 - INFO - Configuration validated successfully
+2026-07-03 17:27:26,344 - INFO - Using webhook: https://discord.com/api/webhoo...
+2026-07-03 17:27:26,512 - INFO - Found 2 free game(s)
+2026-07-03 17:27:26,513 - INFO - Completed notification check
