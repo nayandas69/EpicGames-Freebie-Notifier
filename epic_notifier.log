@@ -2246,3 +2246,11 @@
 2026-08-04 17:49:59,098 - INFO - Using webhook: https://discord.com/api/webhoo...
 2026-08-04 17:49:59,658 - INFO - Found 2 free game(s)
 2026-08-04 17:49:59,659 - INFO - Completed notification check
+2026-08-05 17:40:03,801 - INFO - Starting Epic Games Freebie Notifier
+2026-08-05 17:40:03,801 - INFO - Current working directory: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier
+2026-08-05 17:40:03,801 - INFO - Looking for .env file at: /home/runner/work/EpicGames-Freebie-Notifier/EpicGames-Freebie-Notifier/.env
+2026-08-05 17:40:03,801 - INFO - .env file exists: False
+2026-08-05 17:40:03,801 - INFO - Configuration validated successfully
+2026-08-05 17:40:03,801 - INFO - Using webhook: https://discord.com/api/webhoo...
+2026-08-05 17:40:04,025 - INFO - Found 2 free game(s)
+2026-08-05 17:40:04,027 - INFO - Completed notification check
