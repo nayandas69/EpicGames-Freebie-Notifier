@@ -3,486 +3,387 @@ Epic Games Freebie Notifier
 
 Author: nayandas69
 GitHub: https://github.com/nayandas69/EpicGames-Freebie-Notifier
-Description: Python script that monitors Epic Games Store for free games
+Description: Python script that monitors the Epic Games Store for free games
              and sends Discord notifications via webhook.
 
 Features:
-    - Fetches free games from Epic Games Store API
+    - Fetches free games from the Epic Games Store API
     - Prevents duplicate notifications with persistent storage
     - Rich Discord embeds with game details and countdown
+    - Resilient HTTP requests with automatic retries
     - Environment variable configuration
     - Comprehensive error handling and logging
 """
 
-import datetime
+from __future__ import annotations
+
+import datetime as dt
 import json
 import logging
 import os
 import sys
-from typing import Dict, List, Optional
 from pathlib import Path
+from typing import Any, Optional
 
 import requests
 from dotenv import load_dotenv
+from requests.adapters import HTTPAdapter, Retry
 
-load_dotenv(override=True, dotenv_path=Path('.env'))
+load_dotenv(override=True, dotenv_path=Path(".env"))
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
-        logging.FileHandler('epic_notifier.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+        logging.FileHandler("epic_notifier.log"),
+        logging.StreamHandler(sys.stdout),
+    ],
 )
 logger = logging.getLogger(__name__)
 
-# Configuration constants
-DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK")
+# ---------------------------------------------------------------------------
+# Configuration
+# ---------------------------------------------------------------------------
+DISCORD_WEBHOOK = os.getenv("DISCORD_WEBHOOK", "").strip()
 POSTED_FILE = Path("epics.json")
-EPIC_GAMES_API = "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions"
+EPIC_GAMES_API = (
+    "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions"
+)
+EPIC_STORE_BASE = "https://store.epicgames.com/en-US/p/"
 REQUEST_TIMEOUT = 30  # seconds
+EPIC_BLUE = 0x0078F2
+
+PREFERRED_IMAGE_TYPES = (
+    "DieselStoreFrontWide",
+    "OfferImageWide",
+    "featuredMedia",
+    "Thumbnail",
+)
 
 
+# ---------------------------------------------------------------------------
+# HTTP session with retries
+# ---------------------------------------------------------------------------
+def build_session() -> requests.Session:
+    """Creates a requests session with sensible retry/backoff behavior."""
+    session = requests.Session()
+    retries = Retry(
+        total=4,
+        backoff_factor=1.5,
+        status_forcelist=(429, 500, 502, 503, 504),
+        allowed_methods=frozenset({"GET", "POST"}),
+    )
+    adapter = HTTPAdapter(max_retries=retries)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    session.headers.update({"User-Agent": "EpicGames-Freebie-Notifier/2.0"})
+    return session
+
+
+SESSION = build_session()
+
+
+# ---------------------------------------------------------------------------
+# Validation
+# ---------------------------------------------------------------------------
 def validate_environment() -> bool:
-    """
-    Validates required environment variables are configured.
-    
-    Returns:
-        bool: True if configuration is valid, False otherwise
-    """
-    env_file = Path(".env")
-    logger.info(f"Current working directory: {Path.cwd()}")
-    logger.info(f"Looking for .env file at: {env_file.absolute()}")
-    logger.info(f".env file exists: {env_file.exists()}")
-    
-    if env_file.exists():
-        logger.info(f".env file size: {env_file.stat().st_size} bytes")
-        # Read and log the content (masking sensitive data)
-        try:
-            with open(env_file, 'r') as f:
-                content = f.read()
-                if 'DISCORD_WEBHOOK' in content:
-                    logger.info(".env file contains DISCORD_WEBHOOK variable")
-                else:
-                    logger.warning(".env file does NOT contain DISCORD_WEBHOOK variable")
-        except Exception as e:
-            logger.error(f"Could not read .env file: {e}")
-    
+    """Validates that a usable Discord webhook is configured."""
     if not DISCORD_WEBHOOK:
-        logger.error("=" * 80)
-        logger.error("ERROR: DISCORD_WEBHOOK is not configured!")
-        logger.error("=" * 80)
-        logger.error("")
-        logger.error("Please follow these steps:")
-        logger.error("1. Create a file named '.env' in this folder:")
-        logger.error(f"   {Path.cwd()}")
-        logger.error("")
-        logger.error("2. Add this line to the .env file:")
-        logger.error("   DISCORD_WEBHOOK=https://discord.com/api/webhooks/YOUR_WEBHOOK_URL")
-        logger.error("")
-        logger.error("3. Get your webhook URL from Discord:")
-        logger.error("   - Open Discord Server Settings")
-        logger.error("   - Go to Integrations > Webhooks")
-        logger.error("   - Create New Webhook")
-        logger.error("   - Copy Webhook URL")
-        logger.error("")
-        
-        if not env_file.exists():
-            logger.error(f"NOTE: .env file does NOT exist at: {env_file.absolute()}")
-        else:
-            logger.error(f"NOTE: .env file exists but DISCORD_WEBHOOK is not set inside it")
-        
-        logger.error("=" * 80)
+        logger.error(
+            "DISCORD_WEBHOOK is not configured. Set it in a .env file or as an "
+            "environment variable. Get the URL from Discord: Server Settings > "
+            "Integrations > Webhooks > New Webhook > Copy Webhook URL."
+        )
         return False
-    
-    if "YOUR_WEBHOOK" in DISCORD_WEBHOOK or not DISCORD_WEBHOOK.startswith("https://discord.com/api/webhooks/"):
-        logger.error("=" * 80)
-        logger.error("ERROR: DISCORD_WEBHOOK appears to be invalid!")
-        logger.error("=" * 80)
-        logger.error("")
-        logger.error(f"Current value: {DISCORD_WEBHOOK}")
-        logger.error("")
-        logger.error("Your webhook URL should look like:")
-        logger.error("https://discord.com/api/webhooks/1234567890/AbCdEfGhIjKlMnOp...")
-        logger.error("")
-        logger.error("Please update your .env file with a valid Discord webhook URL")
-        logger.error("=" * 80)
+
+    if not DISCORD_WEBHOOK.startswith("https://discord.com/api/webhooks/"):
+        logger.error(
+            "DISCORD_WEBHOOK looks invalid. It should start with "
+            "'https://discord.com/api/webhooks/'."
+        )
         return False
-    
-    logger.info("Configuration validated successfully")
-    logger.info(f"Using webhook: {DISCORD_WEBHOOK[:30]}...")  # Show first 30 chars for verification
+
+    logger.info("Configuration validated successfully.")
     return True
 
 
-def get_free_games() -> List[Dict]:
-    """
-    Fetches currently free games from Epic Games Store API.
-
-    Returns:
-        List[Dict]: List of free games with details (title, URL, image, price, expiration)
-    
-    Raises:
-        requests.RequestException: If API request fails
-    """
+# ---------------------------------------------------------------------------
+# Fetching & parsing
+# ---------------------------------------------------------------------------
+def get_free_games() -> list[dict[str, Any]]:
+    """Fetches currently-free games from the Epic Games Store API."""
     try:
-        response = requests.get(EPIC_GAMES_API, timeout=REQUEST_TIMEOUT)
+        response = SESSION.get(EPIC_GAMES_API, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()
-        
-        data = response.json()
-        games = data["data"]["Catalog"]["searchStore"]["elements"]
-        
-        free_games = []
-        for game in games:
-            # Only process games that are currently free
-            if game["price"]["totalPrice"]["discountPrice"] == 0:
-                game_data = _extract_game_data(game)
-                if game_data:
-                    free_games.append(game_data)
-        
-        logger.info(f"Found {len(free_games)} free game(s)")
-        return free_games
-        
-    except requests.RequestException as e:
-        logger.error(f"Failed to fetch games from Epic Games API: {e}")
+        elements = (
+            response.json()["data"]["Catalog"]["searchStore"]["elements"]
+        )
+    except requests.RequestException as exc:
+        logger.error("Failed to fetch games from Epic Games API: %s", exc)
         raise
-    except (KeyError, ValueError) as e:
-        logger.error(f"Failed to parse API response: {e}")
+    except (KeyError, ValueError) as exc:
+        logger.error("Failed to parse API response: %s", exc)
         raise
 
+    free_games: list[dict[str, Any]] = []
+    for element in elements:
+        if not _is_currently_free(element):
+            continue
+        game = _extract_game_data(element)
+        if game:
+            free_games.append(game)
 
-def _extract_game_data(game: Dict) -> Optional[Dict]:
-    """
-    Extracts relevant game information from API response.
-    
-    Args:
-        game: Raw game data from Epic Games API
-    
-    Returns:
-        Optional[Dict]: Processed game data or None if extraction fails
-    """
+    logger.info("Found %d free game(s).", len(free_games))
+    return free_games
+
+
+def _is_currently_free(game: dict[str, Any]) -> bool:
+    """Returns True if the game's discounted price is 0 with an active promo."""
     try:
-        logger.debug(f"Processing game: {game.get('title', 'Unknown')}")
-        
+        if game["price"]["totalPrice"]["discountPrice"] != 0:
+            return False
+    except (KeyError, TypeError):
+        return False
+
+    promotions = game.get("promotions") or {}
+    active = promotions.get("promotionalOffers") or []
+    return bool(active)
+
+
+def _resolve_slug(game: dict[str, Any]) -> Optional[str]:
+    """Determines the best product slug for building a store URL."""
+    if game.get("productSlug"):
+        return game["productSlug"]
+
+    for key in ("catalogNs", "offerMappings"):
+        source = game.get(key) or {}
+        mappings = (
+            source.get("mappings") if key == "catalogNs" else game.get(key)
+        )
+        if mappings:
+            slug = mappings[0].get("pageSlug")
+            if slug:
+                return slug
+
+    if game.get("urlSlug"):
+        return game["urlSlug"]
+
+    return game.get("id") or None
+
+
+def _resolve_image(game: dict[str, Any]) -> str:
+    """Picks the most presentable key image for the game."""
+    key_images = game.get("keyImages") or []
+    for wanted in PREFERRED_IMAGE_TYPES:
+        for img in key_images:
+            if img.get("type") == wanted and img.get("url"):
+                return img["url"]
+    return key_images[0].get("url", "") if key_images else ""
+
+
+def _resolve_original_price(game: dict[str, Any]) -> str:
+    """Extracts a human-readable original price, defaulting to 'Free'."""
+    try:
+        price_info = game.get("price", {}).get("totalPrice", {})
+        original = price_info.get("originalPrice", 0)
+        discount = price_info.get("discountPrice", 0)
+
+        if original and original > discount:
+            return f"${original / 100:.2f}"
+
+        fmt = price_info.get("fmtPrice", {}).get("originalPrice")
+        if fmt and fmt != "0":
+            return fmt
+    except (KeyError, AttributeError, TypeError):
+        pass
+    return "Free"
+
+
+def _extract_game_data(game: dict[str, Any]) -> Optional[dict[str, Any]]:
+    """Extracts the fields we care about from a raw API game element."""
+    try:
         title = game["title"]
-        
         if "mystery" in title.lower():
-            logger.debug(f"Skipping mystery game: {title}")
+            logger.debug("Skipping mystery game: %s", title)
             return None
-        
-        product_slug = None
-        
-        if game.get("productSlug"):
-            product_slug = game["productSlug"]
-        
-        elif game.get("catalogNs", {}).get("mappings"):
-            mappings = game["catalogNs"]["mappings"]
-            if mappings and len(mappings) > 0:
-                product_slug = mappings[0].get("pageSlug")
-        
-        elif game.get("offerMappings"):
-            mappings = game["offerMappings"]
-            if mappings and len(mappings) > 0:
-                product_slug = mappings[0].get("pageSlug")
-        
-        elif game.get("urlSlug"):
-            product_slug = game["urlSlug"]
-        
-        if not product_slug:
-            product_slug = game.get("id", "")
-            logger.warning(f"Using game ID as slug for '{title}': {product_slug}")
-        
-        if not product_slug:
-            logger.warning(f"Could not determine product slug for '{title}'")
+
+        slug = _resolve_slug(game)
+        if not slug:
+            logger.warning("Could not determine product slug for '%s'.", title)
             return None
-        
-        url = f"https://store.epicgames.com/en-US/p/{product_slug}"
-        
-        image = ""
-        if game.get("keyImages"):
-            for img in game["keyImages"]:
-                if img.get("type") in ["DieselStoreFrontWide", "OfferImageWide", "featuredMedia"]:
-                    image = img.get("url", "")
-                    break
-            if not image and game["keyImages"]:
-                image = game["keyImages"][0].get("url", "")
-        
-        original_price = "Free"
-        try:
-            price_info = game.get("price", {}).get("totalPrice", {})
-            
-            # First check originalPrice in cents
-            original_amount = price_info.get("originalPrice", 0)
-            discount_amount = price_info.get("discountPrice", 0)
-            
-            # If originalPrice exists and is greater than discountPrice (meaning there was a discount)
-            if original_amount and original_amount > discount_amount:
-                formatted_price = original_amount / 100
-                original_price = f"${formatted_price:.2f}"
-            # Otherwise check the formatted price object
-            elif price_info.get("fmtPrice", {}).get("originalPrice"):
-                fmt_original = price_info["fmtPrice"]["originalPrice"]
-                if fmt_original and fmt_original != "0":
-                    original_price = fmt_original
-            # Last resort: check lineOffers for original price
-            elif game.get("price", {}).get("lineOffers"):
-                line_offers = game["price"]["lineOffers"]
-                if line_offers and len(line_offers) > 0:
-                    line_price = line_offers[0].get("appliedRules", [{}])[0].get("originalPrice", 0)
-                    if line_price and line_price > 0:
-                        formatted_price = line_price / 100
-                        original_price = f"${formatted_price:.2f}"
-                
-        except (KeyError, AttributeError, TypeError, IndexError) as e:
-            logger.debug(f"Could not extract price for '{title}': {e}")
-            original_price = "Free"
-        
-        end_timestamp = _calculate_expiration_timestamp(game)
-        
+
         return {
             "title": title,
-            "url": url,
-            "image": image,
-            "original_price": original_price,
-            "end_timestamp": end_timestamp,
+            "url": f"{EPIC_STORE_BASE}{slug}",
+            "image": _resolve_image(game),
+            "original_price": _resolve_original_price(game),
+            "end_timestamp": _calculate_expiration_timestamp(game),
         }
-    except (KeyError, IndexError, AttributeError) as e:
-        logger.warning(f"Failed to extract data for '{game.get('title', 'Unknown')}': {e}")
-        logger.debug(f"Game data structure: {json.dumps(game, indent=2)[:500]}")
+    except (KeyError, IndexError, AttributeError) as exc:
+        logger.warning(
+            "Failed to extract data for '%s': %s",
+            game.get("title", "Unknown"),
+            exc,
+        )
         return None
 
 
-def _calculate_expiration_timestamp(game: Dict) -> Optional[int]:
-    """
-    Calculates Unix timestamp for when the free promotion expires.
-
-    Args:
-        game: Game data from Epic Games API
-
-    Returns:
-        Optional[int]: Unix timestamp of expiration, or None if unavailable
-    """
-    try:
-        promotions = game.get("promotions")
-        
-        if not promotions:
-            logger.debug(f"No promotions data for game: {game.get('title')}")
-            return None
-        
-        promo_offers = promotions.get("promotionalOffers")
-        if promo_offers and len(promo_offers) > 0:
-            offers = promo_offers[0].get("promotionalOffers", [])
-            if offers and len(offers) > 0:
-                end_date = offers[0].get("endDate")
-                if end_date:
-                    end_datetime = datetime.datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-                    return int(end_datetime.timestamp())
-        
-        upcoming = promotions.get("upcomingPromotionalOffers")
-        if upcoming and len(upcoming) > 0:
-            offers = upcoming[0].get("promotionalOffers", [])
-            if offers and len(offers) > 0:
-                end_date = offers[0].get("endDate")
-                if end_date:
-                    end_datetime = datetime.datetime.fromisoformat(end_date.replace('Z', '+00:00'))
-                    return int(end_datetime.timestamp())
-        
-        logger.debug(f"Could not determine expiration for game: {game.get('title')}")
-        return None
-        
-    except (KeyError, IndexError, ValueError, AttributeError) as e:
-        logger.debug(f"Error calculating expiration for game: {e}")
-        return None
+def _calculate_expiration_timestamp(game: dict[str, Any]) -> Optional[int]:
+    """Returns the Unix timestamp for when the free promotion ends."""
+    promotions = game.get("promotions") or {}
+    for key in ("promotionalOffers", "upcomingPromotionalOffers"):
+        groups = promotions.get(key) or []
+        if not groups:
+            continue
+        offers = groups[0].get("promotionalOffers") or []
+        if not offers:
+            continue
+        end_date = offers[0].get("endDate")
+        if not end_date:
+            continue
+        try:
+            end = dt.datetime.fromisoformat(end_date.replace("Z", "+00:00"))
+            return int(end.timestamp())
+        except (ValueError, AttributeError):
+            continue
+    return None
 
 
 def _format_expiration_date(timestamp: Optional[int]) -> str:
-    """
-    Formats expiration timestamp into human-readable date.
-    
-    Args:
-        timestamp: Unix timestamp of expiration
-    
-    Returns:
-        str: Formatted date string like "22 December 2025"
-    """
+    """Formats an expiration timestamp into a human-readable date."""
     if not timestamp:
         return "Unknown"
-    
-    expiration_date = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
-    return expiration_date.strftime("%d %B %Y")
+    date = dt.datetime.fromtimestamp(timestamp, tz=dt.timezone.utc)
+    return date.strftime("%d %B %Y")
 
 
-def load_posted_games() -> Dict:
-    """
-    Loads previously notified games from persistent storage.
-
-    Returns:
-        Dict: Previously posted games with their expiration timestamps
-    """
-    if POSTED_FILE.exists():
-        try:
-            with open(POSTED_FILE, 'r', encoding='utf-8') as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.error(f"Failed to load posted games file: {e}")
-            return {}
-    return {}
-
-
-def save_posted_games(posted: Dict) -> None:
-    """
-    Persists posted games to storage to prevent duplicate notifications.
-
-    Args:
-        posted: Dictionary of posted games with their metadata
-    """
+# ---------------------------------------------------------------------------
+# Persistence
+# ---------------------------------------------------------------------------
+def load_posted_games() -> dict[str, Any]:
+    """Loads previously-notified games from persistent storage."""
+    if not POSTED_FILE.exists():
+        return {}
     try:
-        with open(POSTED_FILE, 'w', encoding='utf-8') as f:
-            json.dump(posted, f, indent=4, ensure_ascii=False)
-        logger.debug(f"Saved {len(posted)} game(s) to tracking file")
-    except IOError as e:
-        logger.error(f"Failed to save posted games file: {e}")
+        with POSTED_FILE.open("r", encoding="utf-8") as fh:
+            return json.load(fh)
+    except (json.JSONDecodeError, IOError) as exc:
+        logger.error("Failed to load posted games file: %s", exc)
+        return {}
 
 
-def send_discord_notification(game: Dict) -> bool:
-    """
-    Sends rich embed notification to Discord webhook.
+def save_posted_games(posted: dict[str, Any]) -> None:
+    """Persists posted games to prevent duplicate notifications."""
+    try:
+        with POSTED_FILE.open("w", encoding="utf-8") as fh:
+            json.dump(posted, fh, indent=4, ensure_ascii=False)
+        logger.debug("Saved %d game(s) to tracking file.", len(posted))
+    except IOError as exc:
+        logger.error("Failed to save posted games file: %s", exc)
 
-    Args:
-        game: Game details to send
 
-    Returns:
-        bool: True if notification sent successfully, False otherwise
-    """
-    expiration_text = _format_expiration_date(game['end_timestamp'])
-    
-    # Build the Discord embed payload
-    embed_data = {
+# ---------------------------------------------------------------------------
+# Notifications
+# ---------------------------------------------------------------------------
+def send_discord_notification(game: dict[str, Any]) -> bool:
+    """Sends a rich embed notification to the Discord webhook."""
+    embed: dict[str, Any] = {
         "title": f"{game['title']} (Epic Games) Giveaway",
-        "description": f"**[🎮 Claim Now]({game['url']})**",
-        "color": 0x0078F2,  # Epic Games blue color
+        "description": f"**[Claim Now]({game['url']})**",
+        "url": game["url"],
+        "color": EPIC_BLUE,
         "fields": [
-            {
-                "name": "Price",
-                "value": game['original_price'],
-                "inline": True
-            },
+            {"name": "Price", "value": game["original_price"], "inline": True},
             {
                 "name": "Free until",
-                "value": expiration_text,
-                "inline": True
-            }
-        ]
+                "value": _format_expiration_date(game["end_timestamp"]),
+                "inline": True,
+            },
+        ],
     }
-    
-    # Add large game image if available
-    if game.get('image'):
-        embed_data["image"] = {"url": game['image']}
-    
-    payload = {
-        "embeds": [embed_data]
-    }
+    if game.get("image"):
+        embed["image"] = {"url": game["image"]}
 
     try:
-        response = requests.post(
-            DISCORD_WEBHOOK,
-            json=payload,
-            timeout=REQUEST_TIMEOUT
+        response = SESSION.post(
+            DISCORD_WEBHOOK, json={"embeds": [embed]}, timeout=REQUEST_TIMEOUT
         )
         response.raise_for_status()
-        
-        logger.info(f"Successfully notified: {game['title']}")
+        logger.info("Successfully notified: %s", game["title"])
         return True
-        
-    except requests.RequestException as e:
-        logger.error(f"Failed to send Discord notification for '{game['title']}': {e}")
-        if hasattr(e.response, 'text'):
-            logger.debug(f"Discord API response: {e.response.text}")
+    except requests.RequestException as exc:
+        logger.error(
+            "Failed to send Discord notification for '%s': %s",
+            game["title"],
+            exc,
+        )
         return False
 
 
+# ---------------------------------------------------------------------------
+# Housekeeping
+# ---------------------------------------------------------------------------
 def _is_game_expired(end_timestamp: Optional[int]) -> bool:
-    """
-    Checks if a game's free promotion has expired.
-    
-    Args:
-        end_timestamp: Unix timestamp of expiration
-    
-    Returns:
-        bool: True if expired, False otherwise
-    """
+    """Returns True if the promotion end time is in the past."""
     if not end_timestamp:
         return False
-    
-    now_timestamp = int(datetime.datetime.now(datetime.timezone.utc).timestamp())
-    return now_timestamp >= end_timestamp
+    now = int(dt.datetime.now(dt.timezone.utc).timestamp())
+    return now >= end_timestamp
 
 
-def cleanup_expired_games(posted_games: Dict, current_games: List[Dict]) -> Dict:
-    """
-    Removes expired games from tracking to keep storage clean.
-    
-    Args:
-        posted_games: Currently tracked games
-        current_games: Games currently free on Epic Store
-    
-    Returns:
-        Dict: Cleaned up tracked games
-    """
-    current_titles = {game['title'] for game in current_games}
-    expired_titles = []
-    
-    for title, data in posted_games.items():
-        if _is_game_expired(data.get('end_timestamp')) or title not in current_titles:
-            expired_titles.append(title)
-    
-    for title in expired_titles:
-        logger.info(f"Removing expired game from tracking: {title}")
+def cleanup_expired_games(
+    posted_games: dict[str, Any], current_games: list[dict[str, Any]]
+) -> dict[str, Any]:
+    """Removes expired / no-longer-free games from tracking storage."""
+    current_titles = {game["title"] for game in current_games}
+    stale = [
+        title
+        for title, data in posted_games.items()
+        if _is_game_expired(data.get("end_timestamp"))
+        or title not in current_titles
+    ]
+    for title in stale:
+        logger.info("Removing expired game from tracking: %s", title)
         del posted_games[title]
-    
     return posted_games
 
 
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 def main() -> None:
-    """
-    Main execution function that orchestrates the notification workflow.
-    """
-    logger.info("Starting Epic Games Freebie Notifier")
-    
+    """Orchestrates the notification workflow."""
+    logger.info("Starting Epic Games Freebie Notifier.")
+
     if not validate_environment():
         logger.error("Configuration validation failed. Exiting.")
         sys.exit(1)
-    
+
     try:
         free_games = get_free_games()
-        
         if not free_games:
-            logger.info("No free games found at this time")
+            logger.info("No free games found at this time.")
             return
-        
+
         posted_games = load_posted_games()
-        
+        now_iso = dt.datetime.now(dt.timezone.utc).isoformat()
+
         for game in free_games:
             title = game["title"]
-            end_timestamp = game["end_timestamp"]
-            
-            if title not in posted_games:
-                logger.info(f"New free game detected: {title}")
-                
-                if send_discord_notification(game):
-                    posted_games[title] = {
-                        "end_timestamp": end_timestamp,
-                        "notified_at": datetime.datetime.now(datetime.timezone.utc).isoformat()
-                    }
-        
+            if title in posted_games:
+                continue
+            logger.info("New free game detected: %s", title)
+            if send_discord_notification(game):
+                posted_games[title] = {
+                    "end_timestamp": game["end_timestamp"],
+                    "notified_at": now_iso,
+                }
+
         posted_games = cleanup_expired_games(posted_games, free_games)
-        
         save_posted_games(posted_games)
-        
-        logger.info("Completed notification check")
-        
-    except Exception as e:
-        logger.exception(f"Unexpected error occurred: {e}")
+        logger.info("Completed notification check.")
+    except Exception as exc:  # noqa: BLE001 - top-level safety net
+        logger.exception("Unexpected error occurred: %s", exc)
         sys.exit(1)
 
 
