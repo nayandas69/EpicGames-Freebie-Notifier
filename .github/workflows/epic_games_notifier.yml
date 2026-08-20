@@ -44,7 +44,7 @@ jobs:
         run: |
           # Check if there are changes to commit
           if [[ -n $(git status --porcelain) ]]; then
-            git add epics.json
+            git add epics.json epic_notifier.log
             git commit -m "🎮 Updated Epic Games free games list - $(date +'%Y-%m-%d %H:%M UTC')" || exit 0
             
             # Pull latest changes and push
