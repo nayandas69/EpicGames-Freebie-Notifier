@@ -2,6 +2,7 @@
 
 Get instant Discord notifications whenever Epic Games drops free games. No more missing out on freebies.
 
+[Visit](Https://epic-games-freebie-notifier.vercel.app)
 ## What It Does
 
 This script checks the Epic Games Store every hour and sends you a Discord notification when new free games are available. It keeps track of what it's already told you about, so you won't get spammed with duplicate notifications.
