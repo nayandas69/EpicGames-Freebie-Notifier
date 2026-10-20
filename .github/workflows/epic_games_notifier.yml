@@ -2,58 +2,93 @@ name: Epic Games to Discord Notifier
 
 on:
   schedule:
-    - cron: '5 16 * * *'  # Runs every day at 10:05 PM Bangladesh time
-  workflow_dispatch:  # Allows manual trigger from Actions tab
+    # 10:05 PM Bangladesh time (UTC+6) = 16:05 UTC
+    - cron: "5 16 * * *"
+  workflow_dispatch:
 
+# Minimum permissions required for the workflow.
 permissions:
-  contents: write  # Required to commit and push changes
+  contents: write
+
+concurrency:
+  group: epic-games-notifier
+  cancel-in-progress: false
 
 jobs:
   notify-free-games:
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 10
+
+    # Do not run this workflow from pull requests.
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7.0.1
         with:
-          token: ${{ secrets.PAT_TOKEN }}
-          fetch-depth: 0  # Fetch all history for better git operations
+          ref: main
+          fetch-depth: 1
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7.0.0
         with:
-          python-version: '3.11'
-          cache: 'pip'  # Built-in pip caching
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements.txt
 
       - name: Install Dependencies
+        shell: bash
         run: |
+          set -euo pipefail
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install -r requirements.txt
 
       - name: Run Epic Games Notifier
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        run: python main.py
-
-      - name: Configure Git
+        shell: bash
         run: |
-          git config user.name "nayandas69"
-          git config user.email "174907517+nayandas69@users.noreply.github.com"
-
-      - name: Commit and Push Changes
-        run: |
-          # Check if there are changes to commit
-          if [[ -n $(git status --porcelain) ]]; then
-            git add epics.json
-            git commit -m "🎮 Updated Epic Games free games list - $(date +'%Y-%m-%d %H:%M UTC')" || exit 0
-            
-            # Pull latest changes and push
-            git pull --rebase origin main || true
-            git push origin main
-            
-            echo "✅ Successfully updated and pushed changes"
-          else
-            echo "ℹ️ No changes to commit"
+          set -euo pipefail
+          if [[ -z "${DISCORD_WEBHOOK:-}" ]]; then
+            echo "::error::DISCORD_WEBHOOK secret is missing."
+            exit 1
           fi
 
+          python main.py
 
+      - name: Commit and Push Changes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Only commit the intended data file.
+          if [[ ! -f epics.json ]]; then
+            echo "::error::epics.json was not found."
+            exit 1
+          fi
+
+          if git diff --quiet -- epics.json &&
+             git diff --cached --quiet -- epics.json &&
+             [[ -z "$(git ls-files --others --exclude-standard -- epics.json)" ]]; then
+            echo "No changes to epics.json."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -- epics.json
+
+          # Never commit unrelated or untracked files.
+          if git diff --cached --quiet; then
+            echo "No staged changes."
+            exit 0
+          fi
+
+          git commit -m "Update Epic Games free games list"
+
+          # Authenticate the push without storing a PAT in the repository.
+          git -c http.extraheader="AUTHORIZATION: basic $(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w 0)" \
+            push origin HEAD:main
